@@ -2,6 +2,8 @@ package hello.login.web.login;
 
 import hello.login.domain.login.LoginService;
 import hello.login.web.member.Member;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
@@ -24,7 +26,7 @@ public class LoginController {
     }
 
     @PostMapping("/login")
-    public String login(@Valid @ModelAttribute LoginForm form, BindingResult bindingResult) {
+    public String login(@Valid @ModelAttribute LoginForm form, BindingResult bindingResult, HttpServletResponse response) {
         if (bindingResult.hasErrors()) {
             return "login/loginForm"; // 유효성 검사 실패 시 폼으로 돌아감
         }
@@ -37,7 +39,12 @@ public class LoginController {
             return "login/loginForm";
         }
 
-        // 로그인 성공 처리 TODO
+        // 로그인 성공 처리
+
+        // 쿠키에 시간 정보 주지 않으면 세션 쿠키 (브라우저 종료 시 삭제됨)
+        Cookie idCookie = new Cookie("memberId", String.valueOf(loginMember.getId()));
+        response.addCookie(idCookie);
+
         return "redirect:/"; // 로그인 성공 후 루트 페이지로 리다이렉트
     }
 }
