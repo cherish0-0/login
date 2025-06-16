@@ -6,6 +6,7 @@ import hello.login.web.session.SessionManager;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
@@ -14,6 +15,8 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
+
+import static hello.login.web.SessionConst.LOGIN_MEMBER;
 
 @Data
 @Controller
@@ -62,7 +65,7 @@ public class LoginController {
 
 
 
-    @GetMapping("/login")
+    // @GetMapping("/login")
     public String loginFormV2(@ModelAttribute("loginForm") LoginForm form) {
         return "login/loginForm"; // 로그인 폼을 보여주는 뷰 이름
     }
@@ -70,7 +73,7 @@ public class LoginController {
     /**
      * HttpServletResponse를 사용해 HTTP 응답을 제어
      */
-    @PostMapping("/login")
+    // @PostMapping("/login")
     public String loginV2(@Valid @ModelAttribute LoginForm form, BindingResult bindingResult, HttpServletResponse response) {
         if (bindingResult.hasErrors()) {
             return "login/loginForm"; // 유효성 검사 실패 시 폼으로 돌아감
@@ -91,11 +94,59 @@ public class LoginController {
         return "redirect:/"; // 로그인 성공 후 루트 페이지로 리다이렉트
     }
 
-    @PostMapping("/logout")
+    // @PostMapping("/logout")
     public String logoutV2(HttpServletRequest request) {
         sessionManager.expire(request);
         return "redirect:/"; // 로그아웃 후 루트 페이지로 리다이렉트
     }
+
+
+
+
+
+    @GetMapping("/login")
+    public String loginFormV3(@ModelAttribute("loginForm") LoginForm form) {
+        return "login/loginForm"; // 로그인 폼을 보여주는 뷰 이름
+    }
+
+    /**
+     * HttpServletResponse를 사용해 HTTP 응답을 제어
+     */
+    @PostMapping("/login")
+    public String loginV3(@Valid @ModelAttribute LoginForm form, BindingResult bindingResult, HttpServletRequest request) {
+        if (bindingResult.hasErrors()) {
+            return "login/loginForm"; // 유효성 검사 실패 시 폼으로 돌아감
+        }
+
+        Member loginMember = loginService.login(form.getLoginId(), form.getPassword());
+
+        // 로그인 실패 처리 (글로벌 오류)
+        if (loginMember == null) {
+            bindingResult.reject("loginFail", "아이디 또는 비밀번호가 맞지 않습니다.");
+            return "login/loginForm";
+        }
+
+        // 로그인 성공 처리
+        // 세션이 있으면 있는 세션 반환, 없으면 새로 생성 (getSession(true) 메소드)
+        // cf. getSession(false) 메소드는 세션이 없으면 null 반환
+        HttpSession session = request.getSession();
+        // 세션에 로그인 회원 정보 보관
+        session.setAttribute(LOGIN_MEMBER, loginMember);
+
+        return "redirect:/"; // 로그인 성공 후 루트 페이지로 리다이렉트
+    }
+
+    @PostMapping("/logout")
+    public String logoutV3(HttpServletRequest request) {
+        // (true) 이면 세션이 없을 때 새로 생성하기 때문에 false로 설정
+        HttpSession session = request.getSession(false);
+        if (session != null) {
+            // 세션이 존재하면 무효화
+            session.invalidate();
+        }
+        return "redirect:/"; // 로그아웃 후 루트 페이지로 리다이렉트
+    }
+
 
 
 
