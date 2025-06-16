@@ -25,6 +25,9 @@ public class LoginController {
         return "login/loginForm"; // 로그인 폼을 보여주는 뷰 이름
     }
 
+    /**
+     * HttpServletResponse를 사용해 HTTP 응답을 제어
+     */
     @PostMapping("/login")
     public String login(@Valid @ModelAttribute LoginForm form, BindingResult bindingResult, HttpServletResponse response) {
         if (bindingResult.hasErrors()) {
@@ -46,5 +49,21 @@ public class LoginController {
         response.addCookie(idCookie);
 
         return "redirect:/"; // 로그인 성공 후 루트 페이지로 리다이렉트
+    }
+
+    @PostMapping("/logout")
+    public String logout(HttpServletResponse response) {
+        expireCookie(response, "memberId");
+        return "redirect:/"; // 로그아웃 후 루트 페이지로 리다이렉트
+    }
+
+    /**
+     * 쿠키를 만료시키는 메소드
+     * MaxAge가 0인 쿠키를 response에 추가하여 브라우저에서 삭제하도록 함
+     */
+    private static void expireCookie(HttpServletResponse response, String cookieName) {
+        Cookie cookie = new Cookie(cookieName, null);
+        cookie.setMaxAge(0);
+        response.addCookie(cookie);
     }
 }
