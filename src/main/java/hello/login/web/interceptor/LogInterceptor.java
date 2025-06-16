@@ -46,6 +46,7 @@ public class LogInterceptor implements HandlerInterceptor {
 
     /**
      * afterCompletion 메서드는 뷰 렌더링까지 완료된 후에 실행됨
+     * 종료 로그가 여기서 출력되는 이유는 예외 발생시에도 이 메서드는 호출되기 때문
      */
     @Override
     public void afterCompletion(HttpServletRequest request, HttpServletResponse response, Object handler, Exception ex) throws Exception {
