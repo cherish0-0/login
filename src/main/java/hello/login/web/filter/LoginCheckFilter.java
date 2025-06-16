@@ -32,7 +32,7 @@ public class LoginCheckFilter implements Filter {
                     log.info("미인증 사용자 요청 {}", requestURI);
                     // 로그인으로 redirect
                     httpResponse.sendRedirect("/login?redirectURL=" + requestURI);
-                    return; // 필터 체인 중단
+                    return; // 필터 체인 중단, 필터/서블릿/컨트롤러가 더 호출되지 않고 redirect가 응답으로 적용되며 요청 종료
                 }
             }
 
