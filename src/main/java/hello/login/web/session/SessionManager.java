@@ -53,7 +53,7 @@ public class SessionManager {
     /**
      * 세션을 만료시키는 메소드
      */
-    public void removeSession(HttpServletRequest request) {
+    public void expire(HttpServletRequest request) {
         Cookie sessionCookie = findCookie(request, SESSION_COOKIE_NAME);
         if (sessionCookie != null) {
             sessionStore.remove(sessionCookie.getValue());
