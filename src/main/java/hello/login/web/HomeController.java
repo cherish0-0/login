@@ -1,5 +1,6 @@
 package hello.login.web;
 
+import hello.login.web.argumentresolver.Login;
 import hello.login.web.member.Member;
 import hello.login.web.member.MemberRepository;
 import hello.login.web.session.SessionManager;
@@ -86,8 +87,20 @@ public class HomeController {
      * @ SessionAttribute 어노테이션을 사용하여 세션에서 회원 정보를 조회
      * 세션을 찾고, 세션에 들어있는 데이터를 찾는 과정을 스프링이 처리해준다.
      */
-    @GetMapping("/")
+    // @GetMapping("/")
     public String homeLoginV3Spring(@SessionAttribute(name = SessionConst.LOGIN_MEMBER, required = false) Member loginMember, Model model) {
+
+        if (loginMember == null) {
+            return "home"; // 세션에 회원 데이터가 없으면 홈 페이지로 이동
+        }
+
+        // 세션이 유지되면 로그인으로 이동
+        model.addAttribute("member", loginMember);
+        return "loginHome"; // 로그인된 홈 페이지로 이동
+    }
+
+    @GetMapping("/")
+    public String homeLoginV3ArgumentResolver(@Login Member loginMember, Model model) {
 
         if (loginMember == null) {
             return "home"; // 세션에 회원 데이터가 없으면 홈 페이지로 이동
